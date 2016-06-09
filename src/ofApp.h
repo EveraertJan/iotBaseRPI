@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxLibwebsockets.h"
 
 class ofApp : public ofBaseApp{
 	
@@ -29,5 +30,13 @@ class ofApp : public ofBaseApp{
 		float		readTime;					// when did we last read?				
 		
 		ofSerial	serial;
+    ofxLibwebsockets::Client client;
+    
+    void onConnect( ofxLibwebsockets::Event& args );
+    void onOpen( ofxLibwebsockets::Event& args );
+    void onClose( ofxLibwebsockets::Event& args );
+    void onIdle( ofxLibwebsockets::Event& args );
+    void onMessage( ofxLibwebsockets::Event& args );
+    void onBroadcast( ofxLibwebsockets::Event& args );
 };
 
