@@ -72,6 +72,9 @@ void ofApp::draw(){
 	msg += "read: " + ofToString(bytesReadString) + "\n";
 	msg += "(at time " + ofToString(readTime, 3) + ")";
     cout << msg << "\n";
+    
+    ofDrawBitmapString(client.isConnected() ? "Client is connected" : "Client disconnected :(", 10,50);
+    ofDrawBitmapString(msg, 10, 80);
 }
 //--------------------------------------------------------------
 void ofApp::onConnect( ofxLibwebsockets::Event& args ){
