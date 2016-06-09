@@ -6,7 +6,8 @@ void ofApp::setup(){
 	
 	ofBackground(255);	
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	
+    
+    client.connect("echo.websocket.org");
 	
 	serial.listDevices();
 	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
@@ -24,6 +25,9 @@ void ofApp::setup(){
 	nBytesRead = 0;
 	readTime = 0;
 	memset(bytesReadString, 0, 4);
+    
+    
+    client.addListener(this);
 }
 
 //--------------------------------------------------------------
@@ -68,6 +72,35 @@ void ofApp::draw(){
 	msg += "read: " + ofToString(bytesReadString) + "\n";
 	msg += "(at time " + ofToString(readTime, 3) + ")";
     cout << msg << "\n";
+}
+//--------------------------------------------------------------
+void ofApp::onConnect( ofxLibwebsockets::Event& args ){
+    cout<<"on connected"<<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::onOpen( ofxLibwebsockets::Event& args ){
+    cout<<"on open"<<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::onClose( ofxLibwebsockets::Event& args ){
+    cout<<"on close"<<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::onIdle( ofxLibwebsockets::Event& args ){
+    cout<<"on idle"<<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::onMessage( ofxLibwebsockets::Event& args ){
+    cout<<"got message "<<args.message<<endl;
+}
+
+//--------------------------------------------------------------
+void ofApp::onBroadcast( ofxLibwebsockets::Event& args ){
+    cout<<"got broadcast "<<args.message<<endl;
 }
 
 //--------------------------------------------------------------
