@@ -39,4 +39,3 @@ class ofApp : public ofBaseApp{
     void onMessage( ofxLibwebsockets::Event& args );
     void onBroadcast( ofxLibwebsockets::Event& args );
 };
-
