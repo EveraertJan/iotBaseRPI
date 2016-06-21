@@ -4,10 +4,12 @@
 void ofApp::setup(){
 	ofSetVerticalSync(true);
 	ofSetFrameRate(24);
-	ofBackground(255);	
+	ofBackground(255);
+	ofSetWindowShape(200,200);
+	ofSetWindowPosition(100, 0);
 //	ofSetLogLevel(OF_LOG_VERBOSE);
     
-    client.connect("echo.websocket.org");
+    client.connect("192.168.99.100:4040");
 	
 	serial.listDevices();
 	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
@@ -41,7 +43,7 @@ void ofApp::update(){
     bool inPayload = false;
     std::string payload = "";
 
-
+    int arrayOffset = 0;	
     // loop until we've read everything
     while ( bytesRemaining > 0 )
     {
@@ -52,7 +54,9 @@ void ofApp::update(){
             int bytesArrayOffset = bytesRequired - bytesRemaining;
             int result = serial.readBytes( &bytes[bytesArrayOffset],
                                           bytesRemaining );
-            
+            if( bytesArrayOffset > 52 ){
+		arrayOffset = bytesArrayOffset - (52 - bytesArrayOffset);
+	    }
             // check for error code
             if ( result == OF_SERIAL_ERROR )
             {
@@ -71,8 +75,8 @@ void ofApp::update(){
             {
                 // we read some data!
                 bytesRemaining -= result;
-                for(int i = 0; i<bytesArrayOffset; i++){
-                    //cout << "bytes: " << ofToHex( bytes[i] ) << "\n";
+                for(int i = arrayOffset; i<bytesArrayOffset; i++){
+                    cout << "bytes: " << ofToHex( bytes[i] ) << "\n";
 		    /*
 		    if ( ofToHex( bytes[i] ) == "0a" ) {
 			inPayload = !inPayload;
