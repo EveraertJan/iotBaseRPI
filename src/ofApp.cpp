@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetVerticalSync(true);
-	
+	ofSetFrameRate(24);
 	ofBackground(255);	
 //	ofSetLogLevel(OF_LOG_VERBOSE);
     
@@ -18,8 +18,8 @@ void ofApp::setup(){
 	int baud = 115200;
 	//serial.setup(1, baud); //open the first device
 	//serial.setup("COM4", baud); // windows example
-	serial.setup("/dev/tty.usbserial-FTG7QFLS", baud); // mac osx example
-	//serial.setup("/dev/ttyUSB0", baud); //linux example
+	//serial.setup("/dev/tty.usbserial-FTG7QFLS", baud); // mac osx example
+	serial.setup("/dev/ttyUSB0", baud); //linux example
 	
 	nTimesRead = 0;
 	nBytesRead = 0;
@@ -27,22 +27,26 @@ void ofApp::setup(){
 	memset(bytesReadString, 0, 4);
     
     
-    client.addListener(this);
+        client.addListener(this);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     
     // we want to read the 52 bytes
-    int bytesRequired = 52;
+    int bytesRequired = 100;
     unsigned char bytes[bytesRequired];
     int bytesRemaining = bytesRequired;
+
+    bool inPayload = false;
+    std::string payload = "";
+
+
     // loop until we've read everything
     while ( bytesRemaining > 0 )
     {
         // check for data
-        if ( serial.available() > 0 )
-        {
+        if ( serial.available() > 0 ){
             // try to read - note offset into the bytes[] array, this is so
             // that we don't overwrite the bytes we already have
             int bytesArrayOffset = bytesRequired - bytesRemaining;
@@ -60,15 +64,40 @@ void ofApp::update(){
             else if ( result == OF_SERIAL_NO_DATA )
             {
                 // nothing was read, try again
+		//serial.flush();
+		cout << "flushing";
             }
             else
             {
                 // we read some data!
                 bytesRemaining -= result;
                 for(int i = 0; i<bytesArrayOffset; i++){
-                    cout << "bytes: " << ofToHex( bytes[i] ) << "\n";
+                    //cout << "bytes: " << ofToHex( bytes[i] ) << "\n";
+		    /*
+		    if ( ofToHex( bytes[i] ) == "0a" ) {
+			inPayload = !inPayload;
+		    }*/
+		    if( inPayload && payload == "" && ofToHex( bytes[i] ) == "0a" ){
+			serial.flush(true, true);
+			//serial.drain();
+			cout << "flushed";
+		    } else if( inPayload && payload !="" && ofToHex( bytes[i] )=="0a" ){
+			cout << payload << endl;
+			payload = "";
+			//serial.flush();
+			return;
+			inPayload = false;
+			
+		    } else if ( inPayload ) {
+			payload += ofToHex( bytes[i] ) ;
+		    }
+
+		    if ( ofToHex( bytes [i] ) == "0a" ){
+			inPayload = !inPayload;
+		    }
                 }
-                cout << "end stream" << "\n";
+                //cout << "end stream with " << payload << "\n";
+		// serial.flush();
             }
             
         }
